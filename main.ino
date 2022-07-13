@@ -2,6 +2,7 @@
 #include <ACE128.h> 
 #include <ACE128map12345678.h> 
 #include <Wire.h> 
+#include <Servo.h> //Include Servo.h
 
 // Создание объекта для работы с энкодером ace128
 ACE128 myACE(2,3,4,5,6,7,8,9, (uint8_t*)encoderMap_12345678);
@@ -48,7 +49,16 @@ union {
 
 int pos_s_old = 0;
 
-void setup() {
+Servo m1; //Create a virtual servo named SimonKESC
+ //Specify potentiometer pin A2 on Arduino
+
+void setup()
+{
+    m1.attach(14); //Specify here the pin number on which the signal pin of ESC is connected
+     delay(1); // no use of this line -_-
+   m1.write(40);// this arms the HW esc
+    delay(3000);// this delay is a must.
+
       // Подключаем сериал
       Serial.begin(9600);
 
@@ -71,8 +81,13 @@ void setup() {
 
       oldPosP = myACE.rawPos(); 
 }
-
+int j = 0;
 void loop() { 
+  j++;
+      m1.write(j);
+  if (j > 500) {
+    j = 0;
+  }
       // Получение значений с энкодера ace128               
       upos = myACE.rawPos(); 
 
@@ -98,6 +113,9 @@ void loop() {
       positionG.f = upos - 35;
       positionS.f = pos_s/20 - 25; 
 
+      //char yacht_dir = Serial.read();
+      pos_s =  pos_s / 25;
+      
       // чекаем позицию энкодера ручки и отправляем
       if (upos-oldPosP == 1){
         Serial.print('3');
@@ -119,16 +137,11 @@ void loop() {
       
       // чекаем позицию энкодера штурвала и отправляем
       if (pos_s-pos_s_old == 1){
-        Serial.print('3');
+        Serial.write(62);
       }else if (pos_s-pos_s_old == -1){
-        Serial.print('1');
-      }else if (pos_s-pos_s_old == 1023){
-        Serial.print('3');
-      }else if (pos_s-pos_s_old == -1023){
-        
-        Serial.print('1');
+        Serial.write(60);
       }else if (millis()-timerR1>=200){
-        Serial.print('2');
+        Serial.write(61);
         timerR1 = millis();
       }
       pos_s_old = pos_s;  
