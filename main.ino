@@ -55,8 +55,8 @@ Servo m1; //Create a virtual servo named SimonKESC
 void setup()
 {
     m1.attach(14); //Specify here the pin number on which the signal pin of ESC is connected
-     delay(1); // no use of this line -_-
-   m1.write(40);// this arms the HW esc
+     //delay(1); // no use of this line -_-
+   m1.write(30);// this arms the HW esc
     delay(3000);// this delay is a must.
 
       // Подключаем сериал
@@ -81,13 +81,11 @@ void setup()
 
       oldPosP = myACE.rawPos(); 
 }
-int j = 0;
+int j = 55;
 void loop() { 
-  j++;
-      m1.write(j);
-  if (j > 500) {
-    j = 0;
-  }
+ // от 47 до 65
+      
+  m1.write(j);
       // Получение значений с энкодера ace128               
       upos = myACE.rawPos(); 
 
@@ -119,15 +117,21 @@ void loop() {
       // чекаем позицию энкодера ручки и отправляем
       if (upos-oldPosP == 1){
         Serial.print('3');
+        j = 65;
+   
       }else if (upos-oldPosP == -1){
         Serial.print('1');
+        j = 50;
+  
       }else if (upos-oldPosP == 127){
         Serial.print('3');
+        j = 65; 
       }else if (upos-oldPosP == -127){
-        
+        j = 50;
         Serial.print('1');
       }else if (millis()-timerR>=200){
         Serial.print('2');
+        j = 47;
         timerR = millis();
       }
       oldPosP = upos;  
@@ -138,8 +142,10 @@ void loop() {
       // чекаем позицию энкодера штурвала и отправляем
       if (pos_s-pos_s_old == 1){
         Serial.write(62);
+        j = 65; 
       }else if (pos_s-pos_s_old == -1){
         Serial.write(60);
+        j = 55; 
       }else if (millis()-timerR1>=200){
         Serial.write(61);
         timerR1 = millis();
