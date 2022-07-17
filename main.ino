@@ -6,6 +6,9 @@
 
 // 747 - 748 - центр шутрвала, влево кручу - 261, вправо - 192 - 191// влево минус 1 когда кручу
 // до упора вперед - 33/ до упора назад - 102/ центр - 2(с назада до впереда + 1 с 102 до центра, потом до 33
+// 5 4 3 2 1 0 127 нейтраль
+// 6 7 8 9 10 11.  128 127 126 125 124 123 до малого 
+// 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 до большого 122 121 120 119 118 117 116 115 114 113 112 111 110 109 108 107
 // Создание объекта для работы с энкодером ace128
 ACE128 myACE(2,3,4,5,6,7,8,9, (uint8_t*)encoderMap_12345678);
 
@@ -53,7 +56,7 @@ int pos_s_old = 0;
 
 Servo m1; //Create a virtual servo named SimonKESC
  //Specify potentiometer pin A2 on Arduino
-
+int old_old_pos_s_for_force_feed = 0;
 void setup()
 {
     m1.attach(14); //Specify here the pin number on which the signal pin of ESC is connected
@@ -110,6 +113,7 @@ void loop() {
       digitalWrite(PIN_CLOCK, LOW);
       digitalWrite(PIN_CLOCK, HIGH);
   
+  old_old_pos_s_for_force_feed = pos_s;
       positionG.f = upos - 35;
       positionS.f = pos_s/20 - 25; 
 
@@ -118,22 +122,47 @@ void loop() {
       
       // чекаем позицию энкодера ручки и отправляем
       if (upos-oldPosP == 1){
-        Serial.print('3');
-        j = 65;
+        if ((upos == 127) || ((upos >= 0) && (upos <= 5))){
+        }else if (((upos >= 6) && (upos <= 11)) || ((upos <= 126) && (upos >= 121))){
+          Serial.print('3');
+        }else if (((upos >= 12) && (upos <= 27)) || ((upos <= 120) && (upos >= 105))){
+          Serial.print('3');
+          Serial.print('3');
+        }
+        //j = 65;
    
       }else if (upos-oldPosP == -1){
-        Serial.print('1');
-        j = 50;
+        
+        //j = 50;
+        if ((upos == 127) || ((upos >= 0) && (upos <= 5))){
+        }else if (((upos >= 6) && (upos <= 11)) || ((upos <= 126) && (upos >= 121))){
+          Serial.print('1');
+        }else if (((upos >= 12) && (upos <= 27)) || ((upos <= 120) && (upos >= 105))){
+          Serial.print('1');
+          Serial.print('1');
+        }
   
       }else if (upos-oldPosP == 127){
-        Serial.print('3');
-        j = 65; 
+        if ((upos == 127) || ((upos >= 0) && (upos <= 5))){
+        }else if (((upos >= 6) && (upos <= 11)) || ((upos <= 126) && (upos >= 121))){
+          Serial.print('3');
+        }else if (((upos >= 12) && (upos <= 27)) || ((upos <= 120) && (upos >= 105))){
+          Serial.print('3');
+          Serial.print('3');
+        }
+        //j = 65; 
       }else if (upos-oldPosP == -127){
-        j = 50;
-        Serial.print('1');
+        //j = 50;
+        if ((upos == 127) || ((upos >= 0) && (upos <= 5))){
+        }else if (((upos >= 6) && (upos <= 11)) || ((upos <= 126) && (upos >= 121))){
+          Serial.print('1');
+        }else if (((upos >= 12) && (upos <= 27)) || ((upos <= 120) && (upos >= 105))){
+          Serial.print('1');
+          Serial.print('1');
+        }
       }else if (millis()-timerR>=200){
         Serial.print('2');
-        j = 47;
+        //j = 47;
         timerR = millis();
       }
       oldPosP = upos;  
@@ -141,19 +170,29 @@ void loop() {
 
       
       
+  
       // чекаем позицию энкодера штурвала и отправляем
       if (pos_s-pos_s_old == 1){
         Serial.write(62);
-        j = 65; 
+        if ((old_old_pos_s_for_force_feed >= 505) && (old_old_pos_s_for_force_feed <= 991) && (upos >= 6) && (upos <= 126)){
+          j = 55; 
+        }else{
+          j = 65; 
+        }     
       }else if (pos_s-pos_s_old == -1){
         Serial.write(60);
-        j = 55; 
+        if ((old_old_pos_s_for_force_feed >= 505) && (old_old_pos_s_for_force_feed <= 991) && (upos >= 6) && (upos <= 126)){
+          j = 55; 
+        }else{
+          j = 65; 
+        }
       }else if (millis()-timerR1>=200){
         Serial.write(61);
         timerR1 = millis();
+        //if ((old_old_pos_s_for_force_feed >= 505) && (old_old_pos_s_for_force_feed <= 991)){
+        // j = 60; 
+        //}
+        j = 0;
       }
-      pos_s_old = pos_s;  
-
-      
-            
+      pos_s_old = pos_s;                 
 }
