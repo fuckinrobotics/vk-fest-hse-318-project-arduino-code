@@ -86,7 +86,7 @@ void setup()
 
       oldPosP = myACE.rawPos(); 
 }
-int j = 55;
+int j = 0;
 void loop() { 
  // от 47 до 65
       
@@ -170,29 +170,37 @@ void loop() {
 
       
       
-  
+ 
       // чекаем позицию энкодера штурвала и отправляем
       if (pos_s-pos_s_old == 1){
+        //Serial.println("left"); 
         Serial.write(62);
         if ((old_old_pos_s_for_force_feed >= 505) && (old_old_pos_s_for_force_feed <= 991) && (upos >= 6) && (upos <= 126)){
-          j = 55; 
-        }else{
+          j = 50; 
+        }else if  ((upos >= 6) && (upos <= 126)){
           j = 65; 
-        }     
+        }else{
+          j = 0;    
+        }
       }else if (pos_s-pos_s_old == -1){
+        //Serial.println("right"); 
         Serial.write(60);
         if ((old_old_pos_s_for_force_feed >= 505) && (old_old_pos_s_for_force_feed <= 991) && (upos >= 6) && (upos <= 126)){
-          j = 55; 
-        }else{
+          j = 50; 
+        }else if  ((upos >= 6) && (upos <= 126)){
           j = 65; 
+        }else{
+          j = 0;    
         }
-      }else if (millis()-timerR1>=200){
+      }else if ((pos_s-pos_s_old == 0) && (millis() - timerR1 >= 200)){
+        //Serial.println("stop"); 
         Serial.write(61);
         timerR1 = millis();
         //if ((old_old_pos_s_for_force_feed >= 505) && (old_old_pos_s_for_force_feed <= 991)){
         // j = 60; 
         //}
         j = 0;
+       
       }
       pos_s_old = pos_s;                 
 }
